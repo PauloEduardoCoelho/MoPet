@@ -2,34 +2,9 @@ import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
-import * as LocalAuthentication from 'expo-local-authentication';
 
 export default function Welcome() {
     const navigation = useNavigation();
-
-    async function handleBiometricAuth() {
-        const compatible = await LocalAuthentication.hasHardwareAsync();
-        if (!compatible) {
-            return Alert.alert('Erro', 'Seu dispositivo não suporta autenticação biométrica.');
-        }
-
-        const enrolled = await LocalAuthentication.isEnrolledAsync();
-        if (!enrolled) {
-            return Alert.alert('Biometria não configurada', 'Configure a biometria nas configurações do dispositivo.');
-        }
-
-        const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: 'Autentique-se para acessar',
-            fallbackLabel: 'Usar senha',
-            cancelLabel: 'Cancelar'
-        });
-
-        if (result.success) {
-            navigation.navigate('SignIn');
-        } else {
-            Alert.alert('Autenticação falhou', 'Tente novamente ou use outro método.');
-        }
-    }
 
     return (
         <View style={styles.container}>
@@ -48,10 +23,15 @@ export default function Welcome() {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={handleBiometricAuth}
-                >
-                    <Text style={styles.buttonText}>Acessar</Text>
-                </TouchableOpacity>
+                    onPress={() => {
+                    setTimeout(() => {
+                    navigation.navigate('SignIn');
+                }, 500);
+            }}
+        >
+  <Text style={styles.buttonText}>Acessar</Text>
+</TouchableOpacity>
+
             </Animatable.View>
         </View>
     );
