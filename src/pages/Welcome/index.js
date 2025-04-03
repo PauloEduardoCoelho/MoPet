@@ -25,7 +25,7 @@ export default function Welcome() {
         });
 
         if (result.success) {
-            navigation.navigate('CadastroAnimal');
+            navigation.navigate('SignIn');
         } else {
             Alert.alert('Autenticação falhou', 'Tente novamente ou use outro método.');
         }
