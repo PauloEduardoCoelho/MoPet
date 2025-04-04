@@ -13,12 +13,11 @@ export default function Footer() {
                 <Text style={styles.label}>Cadastrar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Cats')} style={styles.iconWrapper}>
+            <TouchableOpacity onPress={() => navigation.navigate('AnimalList')} style={styles.iconWrapper}>
                 <Icon name="format-list-bulleted" size={24} color="#D69A3A" />
                 <Text style={styles.label}>Listar</Text>
             </TouchableOpacity>
 
-            {/* Ícone Home levemente destacado e centralizado */}
             <TouchableOpacity 
                 onPress={() => navigation.navigate('Home')} 
                 style={styles.homeWrapper}

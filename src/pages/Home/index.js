@@ -22,7 +22,7 @@ export default function Home() {
 
                 <TouchableOpacity 
                     style={styles.iconButton}
-                    onPress={() => navigation.navigate('Cats')}
+                    onPress={() => navigation.navigate('AnimalList')}
                 >
                     <Icon name="format-list-bulleted" size={40} color="#D69A3A" />
                     <Text style={styles.iconLabel}>Listar Animais</Text>

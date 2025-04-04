@@ -15,65 +15,79 @@ import Footer from '../../components/footer';
 import styles from './styles';
 
 export default function CadastroAnimalScreen() {
-  const [nomeAnimal, setNomeAnimal] = useState('');
-  const [idadeAnimal, setIdadeAnimal] = useState('');
-  const [nomeTutor, setNomeTutor] = useState('');
-  const [cpfTutor, setCpfTutor] = useState('');
-  const [data, setData] = useState(new Date());
-  const [imagem, setImagem] = useState(null);
-  const [localizacao, setLocalizacao] = useState({
-    latitude: -23.55052,
-    longitude: -46.633308,
-  });
+    const [nomeAnimal, setNomeAnimal] = useState('');
+    const [idadeAnimal, setIdadeAnimal] = useState('');
+    const [nomeTutor, setNomeTutor] = useState('');
+    const [cpfTutor, setCpfTutor] = useState('');
+    const [data, setData] = useState(new Date());
+    const [imagem, setImagem] = useState(null);
+    const [localizacao, setLocalizacao] = useState({
+      latitude: -23.55052,
+      longitude: -46.633308,
+    });
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Permissão para usar a câmera é necessária!');
+    useEffect(() => {
+      (async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Permissão para usar a câmera é necessária!');
+        }
+      })();
+    }, []);
+
+    const selecionarImagem = async () => {
+      try {
+        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!cameraPermission.granted) {
+          alert('Permissão de câmera negada. Ative nas configurações do dispositivo.');
+          return;
+        }
+    
+        const result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          quality: 1,
+        });
+    
+        console.log('Resultado da câmera:', result); // debug
+    
+        if (!result.canceled && result.assets.length > 0) {
+          setImagem(result.assets[0].uri);
+        }
+      } catch (error) {
+        console.log('Erro ao abrir a câmera:', error);
+        alert('Ocorreu um erro ao tentar abrir a câmera.');
       }
-    })();
-  }, []);
-
-  const selecionarImagem = async () => {
-    let resultado = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-
-    if (!resultado.canceled) {
-      setImagem(resultado.assets[0].uri);
-    }
-  };
-
-  const abrirDatePicker = () => {
-    DateTimePickerAndroid.open({
-      value: data,
-      onChange: (event, selectedDate) => {
-        if (selectedDate) setData(selectedDate);
-      },
-      mode: 'date',
-      is24Hour: true,
-    });
-  };
-
-  const aoMarcarMapa = (evento) => {
-    setLocalizacao(evento.nativeEvent.coordinate);
-  };
-
-  const aoSalvar = () => {
-    const dados = {
-      nomeAnimal,
-      idadeAnimal,
-      nomeTutor,
-      cpfTutor,
-      data: data.toLocaleDateString(),
-      imagem,
-      localizacao,
     };
-    console.log('Dados cadastrados:', dados);
-    alert('Cadastro realizado com sucesso!');
-  };
+    
+
+    const abrirDatePicker = () => {
+      DateTimePickerAndroid.open({
+        value: data,
+        onChange: (event, selectedDate) => {
+          if (selectedDate) setData(selectedDate);
+        },
+        mode: 'date',
+        is24Hour: true,
+      });
+    };
+
+    const aoMarcarMapa = (evento) => {
+      setLocalizacao(evento.nativeEvent.coordinate);
+    };
+
+    const aoSalvar = () => {
+      const dados = {
+        nomeAnimal,
+        idadeAnimal,
+        nomeTutor,
+        cpfTutor,
+        data: data.toLocaleDateString(),
+        imagem,
+        localizacao,
+      };
+      console.log('Dados cadastrados:', dados);
+      alert('Cadastro realizado com sucesso!');
+    };
 
   return (
     <View style={{ flex: 1 }}>

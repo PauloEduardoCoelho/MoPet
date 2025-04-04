@@ -86,30 +86,31 @@ export default function AnimalList() {
     }
   };
 
-  const renderItem = ({ item, index }) => (
-    <Animatable.View animation="fadeInUp" delay={index * 100} duration={600}>
-      <View style={styles.card}>
-        <Image source={item.foto} style={styles.image} />
-        <View style={styles.cardContent}>
-          <Text style={styles.nome}>Nome: {item.nome}</Text>
-          <Text style={styles.cpf}>CPF do Tutor: {item.cpf}</Text>
-        </View>
-        <View style={styles.iconArea}>
-          <Icon
-            name={item.tipo === 'gato' ? 'cat' : 'dog'}
-            size={30}
-            color="#D69A3A"
-          />
-        </View>
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={item.foto} style={styles.image} />
+      <View style={styles.cardContent}>
+        <Text style={styles.nome}>Nome: {item.nome}</Text>
+        <Text style={styles.cpf}>CPF do Tutor: {item.cpf}</Text>
       </View>
-    </Animatable.View>
+      <View style={styles.iconArea}>
+        <Icon
+          name={item.tipo === 'gato' ? 'cat' : 'dog'}
+          size={30}
+          color="#D69A3A"
+        />
+      </View>
+    </View>
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Animais cadastrados</Text>
-        <View style={styles.searchArea}>
+        <Animatable.View animation="fadeInLeft" delay={500}>
+            <Text style={styles.headerTitle}>Animais cadastrados</Text>
+        </Animatable.View>
+
+    <View style={styles.searchArea}>
           <TextInput
             style={styles.input}
             placeholder="Insira o CPF do Tutor..."
