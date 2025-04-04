@@ -12,6 +12,7 @@ MoPet é um aplicativo mobile destinado ao cadastro e monitoramento de campanhas
 - [Como Executar o Projeto](#como-executar-o-projeto)
 - [Sobre os Desenvolvedores](#sobre-os-desenvolvedores)
 - [Orientador](#orientador)
+- [Considerações Finais](#considerações-finais)
 
 ---
 
@@ -20,8 +21,6 @@ MoPet é um aplicativo mobile destinado ao cadastro e monitoramento de campanhas
 - **React Native** com **Expo**
 - **React Navigation** para gerenciamento de rotas
 - **React Native Animatable** para animações
-- [Firebase](https://firebase.google.com/) (para autenticação e armazenamento, se implementado)
-- **AsyncStorage** ou **SQLite** para armazenamento local (se implementado)
 
 ---
 
@@ -61,7 +60,7 @@ MoPet/
 1. **Clone o repositório:**
 
 ```bash
-git clone https://seu-repositorio-url.git
+git clone https://MoPet.git
 cd MoPet
 ```
 
