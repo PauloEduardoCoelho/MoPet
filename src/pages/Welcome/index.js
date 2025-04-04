@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 
@@ -15,6 +15,7 @@ export default function Welcome() {
                     style={{ width: '100%' }}
                     resizeMode="contain"
                 />
+                <Text style={styles.appName}>MoPet</Text>
             </View>
 
             <Animatable.View delay={600} animation="fadeInUp" style={styles.containerForm}>
@@ -24,14 +25,13 @@ export default function Welcome() {
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => {
-                    setTimeout(() => {
-                    navigation.navigate('SignIn');
-                }, 500);
-            }}
-        >
-  <Text style={styles.buttonText}>Acessar</Text>
-</TouchableOpacity>
-
+                        setTimeout(() => {
+                            navigation.navigate('SignIn');
+                        }, 500);
+                    }}
+                >
+                    <Text style={styles.buttonText}>Acessar</Text>
+                </TouchableOpacity>
             </Animatable.View>
         </View>
     );
@@ -81,4 +81,10 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontWeight: 'bold'
     },
+    appName: {
+        fontSize: 36,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginTop: -10,
+    }
 });
