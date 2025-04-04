@@ -21,8 +21,6 @@ MoPet é um aplicativo mobile destinado ao cadastro e monitoramento de campanhas
 - **React Native** com **Expo**
 - **React Navigation** para gerenciamento de rotas
 - **React Native Animatable** para animações
-- [Firebase](https://firebase.google.com/) (para autenticação e armazenamento, se implementado)
-- **AsyncStorage** ou **SQLite** para armazenamento local (se implementado)
 
 ---
 
