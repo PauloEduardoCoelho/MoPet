@@ -1,0 +1,102 @@
+# MoPet 🐾
+
+MoPet é um aplicativo mobile destinado ao cadastro e monitoramento de campanhas públicas de vacinação e castração de cães e gatos. O app foi desenvolvido como projeto final de curso, visando melhorar a gestão e a eficiência das campanhas de saúde pública, auxiliando tanto agentes de vigilância sanitária quanto os donos dos animais.
+
+---
+
+## Índice
+
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Funcionalidades](#funcionalidades)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Como Executar o Projeto](#como-executar-o-projeto)
+- [Sobre os Desenvolvedores](#sobre-os-desenvolvedores)
+- [Orientador](#orientador)
+
+---
+
+## Tecnologias Utilizadas
+
+- **React Native** com **Expo**
+- **React Navigation** para gerenciamento de rotas
+- **React Native Animatable** para animações
+- [Firebase](https://firebase.google.com/) (para autenticação e armazenamento, se implementado)
+- **AsyncStorage** ou **SQLite** para armazenamento local (se implementado)
+
+---
+
+## Funcionalidades
+
+- **Login e Cadastro de Usuários:** Acesso seguro e personalizado.
+- **Cadastro de Animais:** Inclusão de dados dos animais para monitoramento.
+- **Recuperação de Senha:** Funcionalidade para recuperar a senha do usuário.
+- **Listas de Espera:** Organização de campanhas de vacinação e castração.
+- **Geolocalização:** (Em desenvolvimento) Direcionamento dos serviços de acordo com a localização.
+- **Geração de Relatórios:** (Em desenvolvimento) Análise e visualização do progresso das campanhas.
+
+---
+
+## Estrutura do Projeto
+
+```bash
+MoPet/
+├── src/
+│   ├── assets/              # Imagens, logos e outros recursos estáticos
+│   ├── components/          # Componentes reutilizáveis
+│   ├── pages/               # Telas do aplicativo
+│   │   ├── Signin/
+│   │   ├── Register/
+│   │   ├── Welcome/
+│   │   └── ForgotPassword/
+│   ├── routes/              # Configuração das rotas
+│   └── App.js               # Arquivo principal do app
+├── .gitignore               # Arquivos e pastas ignorados pelo Git
+└── README.md                # Documentação do projeto
+```
+
+---
+
+## Como Executar o Projeto
+
+1. **Clone o repositório:**
+
+```bash
+git clone https://seu-repositorio-url.git
+cd MoPet
+```
+
+2. **Instale as Dependências:**
+
+```bash
+npm install
+```
+
+3. **Inicie o Projeto:**
+
+```bash
+npx expo start
+```
+
+A partir daí, você pode rodar o app em um emulador ou dispositivo físico usando o aplicativo **Expo Go**.
+
+---
+
+## Sobre os Desenvolvedores
+
+- **João da Silva Alves Cunha** – Matrícula: 202211713  
+- **Paulo Eduardo Fernandes de Siqueira Coelho** – Matrícula: 202212248
+
+---
+
+## Orientador
+
+- **Tássio Ferenzini Martins Sirqueira**
+
+---
+
+## Considerações Finais
+
+MoPet foi desenvolvido para facilitar a gestão das campanhas de vacinação e castração de animais, contribuindo para a saúde pública e o bem-estar dos animais.  
+Esse projeto integra conhecimentos de desenvolvimento de software, gerenciamento de dados e design de interfaces, proporcionando uma solução prática e inovadora para o setor.
+
+> Este projeto é parte do Trabalho de Conclusão de Curso (TCC) de Engenharia de Software da **Univassouras**.
