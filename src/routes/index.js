@@ -5,6 +5,7 @@ import SignIn from '../pages/Signin'
 import CadastroAnimal from "../pages/CadastroAnimal";
 import Register from "../pages/Register"
 import ForgotPassword from "../pages/ForgotPassword"
+import Home from "../pages/Home";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,12 @@ export default function Routes(){
             <Stack.Screen 
                 name="CadastroAnimal"
                 component={CadastroAnimal}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen 
+                name="Home"
+                component={Home}
                 options={{ headerShown: false }}
             />
 

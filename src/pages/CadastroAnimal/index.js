@@ -3,19 +3,19 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   Image,
   ScrollView,
-  Platform,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import MapView, { Marker } from 'react-native-maps';
 import { DateTimePickerAndroid } from 'react-native';
+import Footer from '../../components/footer';
 
 export default function CadastroAnimalScreen() {
   const [nomeAnimal, setNomeAnimal] = useState('');
+  const [idadeAnimal, setIdadeAnimal] = useState('');
   const [nomeTutor, setNomeTutor] = useState('');
   const [cpfTutor, setCpfTutor] = useState('');
   const [data, setData] = useState(new Date());
@@ -63,6 +63,7 @@ export default function CadastroAnimalScreen() {
   const aoSalvar = () => {
     const dados = {
       nomeAnimal,
+      idadeAnimal,
       nomeTutor,
       cpfTutor,
       data: data.toLocaleDateString(),
@@ -74,59 +75,84 @@ export default function CadastroAnimalScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.label}>Nome do Animal:</Text>
-      <TextInput style={styles.input} value={nomeAnimal} onChangeText={setNomeAnimal} />
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.label}>Nome do Animal:</Text>
+        <TextInput
+          style={styles.input}
+          value={nomeAnimal}
+          onChangeText={setNomeAnimal}
+          placeholder="Digite o nome do animal"
+          placeholderTextColor="#aaa"
+        />
 
-      <Text style={styles.label}>Nome do Tutor:</Text>
-      <TextInput style={styles.input} value={nomeTutor} onChangeText={setNomeTutor} />
+        <Text style={styles.label}>Idade do Animal:</Text>
+        <TextInput
+          style={styles.input}
+          value={idadeAnimal}
+          onChangeText={setIdadeAnimal}
+          keyboardType="numeric"
+          placeholder="Digite a idade do animal"
+          placeholderTextColor="#aaa"
+        />
 
-      <Text style={styles.label}>CPF do Tutor:</Text>
-      <TextInput
-        style={styles.input}
-        value={cpfTutor}
-        onChangeText={setCpfTutor}
-        keyboardType="numeric"
-      />
+        <Text style={styles.label}>Nome do Tutor:</Text>
+        <TextInput
+          style={styles.input}
+          value={nomeTutor}
+          onChangeText={setNomeTutor}
+          placeholder="Digite o nome do tutor"
+          placeholderTextColor="#aaa"
+        />
 
-      <Text style={styles.label}>Data:</Text>
-      <TouchableOpacity style={styles.botao} onPress={abrirDatePicker}>
-        <Text style={styles.textoBotao}>Selecionar Data</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>CPF do Tutor:</Text>
+        <TextInput
+          style={styles.input}
+          value={cpfTutor}
+          onChangeText={setCpfTutor}
+          keyboardType="numeric"
+          placeholder="Digite o CPF do tutor"
+          placeholderTextColor="#aaa"
+        />
+
+        <Text style={styles.label}>Data:</Text>
+        <TouchableOpacity style={styles.botao} onPress={abrirDatePicker}>
+          <Text style={styles.textoBotao}>Selecionar Data</Text>
+        </TouchableOpacity>
         <Text style={styles.dataTexto}>{data.toLocaleDateString()}</Text>
 
         <Text style={styles.label}>Foto do Animal:</Text>
-      <TouchableOpacity style={styles.botao} onPress={selecionarImagem}>
-        <Text style={styles.textoBotao}>Tirar Foto</Text>
-      </TouchableOpacity>
-      {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
+        <TouchableOpacity style={styles.botao} onPress={selecionarImagem}>
+          <Text style={styles.textoBotao}>Tirar Foto</Text>
+        </TouchableOpacity>
+        {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
 
+        <Text style={styles.label}>Marcar Localização no Mapa:</Text>
+        <MapView
+          style={styles.mapa}
+          initialRegion={{
+            ...localizacao,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+          onPress={aoMarcarMapa}
+        >
+          <Marker coordinate={localizacao} />
+        </MapView>
 
-      <Text style={styles.label}>Marcar Localização no Mapa:</Text>
-      <MapView
-        style={styles.mapa}
-        initialRegion={{
-          ...localizacao,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-        onPress={aoMarcarMapa}
-      >
-        <Marker coordinate={localizacao} />
-      </MapView>
-
-      <TouchableOpacity style={styles.botao} onPress={aoSalvar}>
-        <Text style={styles.textoBotao}>Salvar Cadastro</Text>
-      </TouchableOpacity>
-
-    </ScrollView>
+        <TouchableOpacity style={styles.botao} onPress={aoSalvar}>
+          <Text style={styles.textoBotao}>Salvar Cadastro</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <Footer />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 100,
     backgroundColor: '#fff',
   },
   label: {
@@ -140,6 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     marginTop: 5,
+    fontSize: 14,
   },
   dataTexto: {
     marginTop: 5,
@@ -165,10 +192,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  
   textoBotao: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
-  },  
+  },
 });
