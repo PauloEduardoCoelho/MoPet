@@ -7,6 +7,7 @@ import Register from "../pages/Register"
 import ForgotPassword from "../pages/ForgotPassword"
 import Home from "../pages/Home";
 import AnimalList from "../pages/AnimalList";
+import Building from "../screens/Building";
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +53,12 @@ export default function Routes(){
             <Stack.Screen 
                 name="AnimalList"
                 component={AnimalList}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen 
+                name="Building"
+                component={Building}
                 options={{ headerShown: false }}
             />
 

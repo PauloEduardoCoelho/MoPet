@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import styles from './styles';
+import Footer from "../../components/footer";
 
 export default function Home() {
     const navigation = useNavigation();
@@ -30,7 +31,7 @@ export default function Home() {
 
                 <TouchableOpacity 
                     style={styles.iconButton}
-                    onPress={() => navigation.navigate('Campaigns')}
+                    onPress={() => navigation.navigate('Building')}
                 >
                     <Icon name="chart-bar" size={40} color="#D69A3A" />
                     <Text style={styles.iconLabel}>Análise de Dados</Text>
@@ -38,12 +39,13 @@ export default function Home() {
 
                 <TouchableOpacity 
                     style={styles.iconButton}
-                    onPress={() => navigation.navigate('Campaigns')}
+                    onPress={() => navigation.navigate('Building')}
                 >
                     <Icon name="calendar-check" size={40} color="#D69A3A" />
                     <Text style={styles.iconLabel}>Campanhas Ativas</Text>
                 </TouchableOpacity>
             </View>
+            <Footer />
         </View>
     );
 }

@@ -18,6 +18,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 5,
     fontSize: 14,
+    backgroundColor: '#fff',
+  },
+  lockedInput: {
+    backgroundColor: '#e0e0e0',
   },
   dataTexto: {
     marginTop: 5,
@@ -48,6 +52,80 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  radioGroup: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 8,
+    marginBottom: 10,
+  },
+  radioButton: {
+    flex: 1,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  radioButtonSelected: {
+    backgroundColor: '#D69A3A',
+    borderColor: '#D69A3A',
+  },
+  radioText: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  radioTextSelected: {
+    color: '#FFF',
+  },
+  imageContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  emptyImage: {
+    height: 200,
+    backgroundColor: '#eee',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  
+  emptyImageText: {
+    color: '#999',
+    fontSize: 14,
+  },
+  
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginBottom: 20,
+  },
+  
+  selectButton: {
+    flex: 1,
+    backgroundColor: '#D69A3A',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  selectButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  header: {
+    height: 140,
+    backgroundColor: '#D69A3A',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    paddingBottom: 25,
+  },
+  headerText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },  
 });
-
 export default styles;

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import styles from './styles';

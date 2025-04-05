@@ -25,12 +25,12 @@ export default function Footer() {
                 <Icon name="home" size={34} color="#D69A3A" />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Campaigns')} style={styles.iconWrapper}>
+            <TouchableOpacity onPress={() => navigation.navigate('Building')} style={styles.iconWrapper}>
                 <Icon name="chart-bar" size={24} color="#D69A3A" />
                 <Text style={styles.label}>Análise</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Campaigns')} style={styles.iconWrapper}>
+            <TouchableOpacity onPress={() => navigation.navigate('Building')} style={styles.iconWrapper}>
                 <Icon name="calendar-check" size={24} color="#D69A3A" />
                 <Text style={styles.label}>Campanhas</Text>
             </TouchableOpacity>
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         backgroundColor: '#FFF',
-        paddingVertical: 8, // ⬅️ menor altura
+        paddingVertical: 8,
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         position: 'absolute',

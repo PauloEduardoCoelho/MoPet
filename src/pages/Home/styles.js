@@ -23,21 +23,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F5F5F5',
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
     borderRadius: 16,
     elevation: 4,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     width: '47%',
+    height: 120,
     marginBottom: 20,
   },
   iconLabel: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
     fontWeight: 'bold',
-  },
+    textAlign: 'center',
+    lineHeight: 18,
+  },  
 });
 
 export default styles;
