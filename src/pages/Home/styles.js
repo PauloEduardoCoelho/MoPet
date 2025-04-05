@@ -3,16 +3,25 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
-    paddingTop: 60,
-    paddingHorizontal: 20,
+    backgroundColor: '#D69A3A',
   },
-  title: {
-    fontSize: 28,
+  header: {
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
+    backgroundColor: '#D69A3A',
+  },
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#D69A3A',
-    marginBottom: 30,
-    alignSelf: 'center',
+  },
+  content: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
   },
   iconGrid: {
     flexDirection: 'row',
@@ -41,7 +50,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 18,
-  },  
+  },
 });
 
 export default styles;
