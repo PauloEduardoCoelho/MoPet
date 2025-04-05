@@ -22,7 +22,7 @@ export default function LoadingScreen() {
         duration={1000}
         style={styles.powered}
       >
-        Powered by PJ
+        From PJ
       </Animatable.Text>
     </SafeAreaView>
   );

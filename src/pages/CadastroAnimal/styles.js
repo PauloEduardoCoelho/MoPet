@@ -2,9 +2,27 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#D69A3A',
+  },
+  header: {
+    backgroundColor: '#D69A3A',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
+  },
+  headerTitle: {
+    color: '#FFF',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  content: {
+    flexGrow: 1,
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     padding: 20,
     paddingBottom: 100,
-    backgroundColor: '#fff',
   },
   label: {
     fontSize: 16,
@@ -22,11 +40,6 @@ const styles = StyleSheet.create({
   },
   lockedInput: {
     backgroundColor: '#e0e0e0',
-  },
-  dataTexto: {
-    marginTop: 5,
-    marginBottom: 10,
-    fontSize: 16,
   },
   imagem: {
     width: '100%',
@@ -90,19 +103,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
   },
-  
   emptyImageText: {
     color: '#999',
     fontSize: 14,
   },
-  
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 10,
     marginBottom: 20,
   },
-  
   selectButton: {
     flex: 1,
     backgroundColor: '#D69A3A',
@@ -110,22 +120,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  selectButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  header: {
-    height: 140,
-    backgroundColor: '#D69A3A',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 25,
-  },
-  headerText: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },  
 });
+
 export default styles;
