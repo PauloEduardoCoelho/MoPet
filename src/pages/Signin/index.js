@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, Platform } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -19,10 +19,14 @@ export default function SignIn() {
             return Alert.alert('Biometria não configurada', 'Configure a biometria nas configurações do dispositivo.');
         }
 
+        const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        const isFaceID = supportedTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
+
         const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: 'Autentique-se para acessar',
+            promptMessage: isFaceID ? 'Use o Face ID, Biometria ou Padrão para autenticar' : 'Autentique-se para acessar',
             fallbackLabel: 'Usar senha',
-            cancelLabel: 'Cancelar'
+            cancelLabel: 'Cancelar',
+            disableDeviceFallback: false
         });
 
         if (result.success) {
