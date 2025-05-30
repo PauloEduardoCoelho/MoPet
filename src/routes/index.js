@@ -8,6 +8,8 @@ import ForgotPassword from "../pages/ForgotPassword"
 import Home from "../pages/Home";
 import AnimalList from "../pages/AnimalList";
 import Building from "../screens/Building";
+import PetDetail from '../pages/PetDetail';
+import EditPet from '../pages/EditPet';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +61,18 @@ export default function Routes(){
             <Stack.Screen 
                 name="Building"
                 component={Building}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen 
+                name="PetDetail"
+                component={PetDetail}
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+                name="EditPet"
+                component={EditPet}
                 options={{ headerShown: false }}
             />
 

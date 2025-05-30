@@ -11,14 +11,12 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      {/* Header fixo na cor do app */}
       <View style={styles.header}>
         <Animatable.Text animation="fadeInLeft" delay={300} style={styles.headerTitle}>
           Menu Principal
         </Animatable.Text>
       </View>
 
-      {/* Conteúdo com fundo branco arredondado */}
       <View style={styles.content}>
         <View style={styles.iconGrid}>
           <TouchableOpacity

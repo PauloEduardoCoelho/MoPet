@@ -1,40 +1,25 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, Platform } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
-import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
+import api from '../../services/api';
 import styles from './styles';
 
 export default function SignIn() {
     const navigation = useNavigation();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-    async function handleBiometricAuth() {
-        const compatible = await LocalAuthentication.hasHardwareAsync();
-        if (!compatible) {
-            return Alert.alert('Erro', 'Seu dispositivo não suporta autenticação biométrica.');
-        }
-
-        const enrolled = await LocalAuthentication.isEnrolledAsync();
-        if (!enrolled) {
-            return Alert.alert('Biometria não configurada', 'Configure a biometria nas configurações do dispositivo.');
-        }
-
-        const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
-        const isFaceID = supportedTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
-
-        const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: isFaceID ? 'Use o Face ID, Biometria ou Padrão para autenticar' : 'Autentique-se para acessar',
-            fallbackLabel: 'Usar senha',
-            cancelLabel: 'Cancelar',
-            disableDeviceFallback: false
-        });
-
-        if (result.success) {
-            setTimeout(() => {
-                navigation.navigate('Home');
-            }, 500);
-        } else {
-            Alert.alert('Autenticação falhou', 'Tente novamente ou use outro método.');
+    async function handleLogin() {
+        try {
+            const response = await api.post('/auth/login', { email, password });
+            await SecureStore.setItemAsync('token', response.data.token);
+            await SecureStore.setItemAsync('role', response.data.role);
+            navigation.navigate('Home');
+        } catch (error) {
+            const msg = error.response?.data?.error || 'Erro ao fazer login. Verifique seus dados.';
+            Alert.alert('Falha no Login', msg);
         }
     }
 
@@ -50,6 +35,10 @@ export default function SignIn() {
                     placeholder="Digite um email..."
                     placeholderTextColor="#aaa"
                     style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
                 />
 
                 <Text style={styles.title}>Senha</Text>
@@ -58,16 +47,11 @@ export default function SignIn() {
                     placeholderTextColor="#aaa"
                     style={styles.input}
                     secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
                 />
 
-                <TouchableOpacity 
-                    style={styles.buttonForgot}
-                    onPress={() => navigation.navigate('ForgotPassword')}
-                >
-                    <Text style={styles.registerText}>Esqueceu a senha?</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.button} onPress={handleBiometricAuth}>
+                <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Acessar</Text>
                 </TouchableOpacity>
 

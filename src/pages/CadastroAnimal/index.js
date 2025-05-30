@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  ScrollView,
-  TouchableOpacity,
+  View, Text, TextInput, Image, ScrollView, TouchableOpacity,
+  KeyboardAvoidingView, Platform, Alert, ActivityIndicator
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import MapView, { Marker } from 'react-native-maps';
+import * as ImagePicker from 'expo-image-picker';
 import Footer from '../../components/footer';
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
+import api from '../../services/api';
+import * as SecureStore from 'expo-secure-store';
 
 export default function CadastroAnimal() {
   const [nomeAnimal, setNomeAnimal] = useState('');
@@ -23,78 +21,94 @@ export default function CadastroAnimal() {
   const [pesoAnimal, setPesoAnimal] = useState('');
   const [corAnimal, setCorAnimal] = useState('');
   const [cpfTutor, setCpfTutor] = useState('');
-  const [data] = useState(new Date());
   const [imagem, setImagem] = useState(null);
-  const [localizacao, setLocalizacao] = useState({
-    latitude: -23.55052,
-    longitude: -46.633308,
-  });
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Permissão para usar a câmera é necessária!');
-      }
-    })();
-  }, []);
+  const [localizacao, setLocalizacao] = useState(null);
+  const [endereco, setEndereco] = useState('');
+  const [loadingMapa, setLoadingMapa] = useState(false);
 
   const selecionarImagem = async () => {
-    try {
-      const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
-      if (!cameraPermission.granted) {
-        alert('Permissão de câmera negada.');
-        return;
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        setImagem(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.log('Erro ao abrir a câmera:', error);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      base64: true,
+      quality: 0.5
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      setImagem(result.assets[0]);
     }
   };
 
-  const escolherImagemGaleria = async () => {
+  const buscarCoordenadas = async () => {
+    if (!endereco.trim()) return Alert.alert("Digite um endereço válido");
+    setLoadingMapa(true);
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        setImagem(result.assets[0].uri);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco)}&format=json`,
+        {
+          headers: {
+            'User-Agent': 'MoPetApp/1.0',
+            'Accept-Language': 'pt-BR'
+          }
+        }
+      );
+      const data = await response.json();
+      if (data.length > 0) {
+        setLocalizacao({
+          latitude: parseFloat(data[0].lat),
+          longitude: parseFloat(data[0].lon),
+        });
+      } else {
+        Alert.alert("Endereço não encontrado");
       }
-    } catch (error) {
-      console.log('Erro ao abrir galeria:', error);
+    } catch (err) {
+      Alert.alert("Erro ao buscar localização", err.message);
+    } finally {
+      setLoadingMapa(false);
     }
   };
 
-  const aoMarcarMapa = (evento) => {
-    setLocalizacao(evento.nativeEvent.coordinate);
-  };
+  const aoSalvar = async () => {
+    if (!nomeAnimal || !tipoAnimal || !cpfTutor || !localizacao || !imagem) {
+      return Alert.alert("Preencha os campos obrigatórios");
+    }
 
-  const aoSalvar = () => {
+    const token = await SecureStore.getItemAsync('token');
+    if (!token) return Alert.alert("Usuário não autenticado");
+
     const dados = {
-      nomeAnimal,
-      idadeAnimal,
-      tipoAnimal,
-      racaAnimal,
-      pesoAnimal,
-      corAnimal,
+      nome: nomeAnimal,
+      idade: idadeAnimal,
+      tipo: tipoAnimal,
+      raca: racaAnimal,
+      peso: pesoAnimal,
+      cor: corAnimal,
       nomeTutor,
       cpfTutor,
-      data: data.toLocaleDateString(),
-      imagem,
+      dataCadastro: new Date().toLocaleDateString(),
+      imagem: imagem.base64,
       localizacao,
     };
-    console.log('Dados cadastrados:', dados);
-    alert('Cadastro realizado com sucesso!');
+
+    try {
+      await api.post('/pets', dados, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      Alert.alert("Cadastro realizado com sucesso!");
+
+      // Resetar formulário
+      setNomeAnimal('');
+      setIdadeAnimal('');
+      setTipoAnimal('');
+      setRacaAnimal('');
+      setPesoAnimal('');
+      setCorAnimal('');
+      setNomeTutor('');
+      setCpfTutor('');
+      setImagem(null);
+      setEndereco('');
+      setLocalizacao(null);
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Erro ao salvar no banco");
+    }
   };
 
   return (
@@ -105,100 +119,85 @@ export default function CadastroAnimal() {
         </Animatable.Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.label}>Nome do Animal:</Text>
-        <TextInput style={styles.input} value={nomeAnimal} onChangeText={setNomeAnimal} placeholder="Digite o nome do animal" placeholderTextColor="#aaa" />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 120 }]} keyboardShouldPersistTaps="handled">
+          <Text style={styles.label}>Nome do Animal:</Text>
+          <TextInput style={styles.input} value={nomeAnimal} onChangeText={setNomeAnimal} placeholder="Ex: Thor" />
 
-        <Text style={styles.label}>Tipo do Animal:</Text>
-        <View style={styles.radioGroup}>
-      <TouchableOpacity
-        style={[
-          styles.radioButton,
-          tipoAnimal === 'cachorro' && styles.radioButtonSelected
-        ]}
-        onPress={() => setTipoAnimal('cachorro')}
-      >
-        <Icon
-          name="dog"
-          size={24}
-          color={tipoAnimal === 'cachorro' ? '#FFF' : '#D69A3A'}
-        />
-      </TouchableOpacity>
+          <Text style={styles.label}>Tipo do Animal:</Text>
+          <View style={styles.radioGroup}>
+            <TouchableOpacity
+              style={[styles.radioButton, tipoAnimal === 'cachorro' && styles.radioButtonSelected]}
+              onPress={() => setTipoAnimal('cachorro')}
+            >
+              <Icon name="dog" size={24} color={tipoAnimal === 'cachorro' ? '#FFF' : '#D69A3A'} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.radioButton, tipoAnimal === 'gato' && styles.radioButtonSelected]}
+              onPress={() => setTipoAnimal('gato')}
+            >
+              <Icon name="cat" size={24} color={tipoAnimal === 'gato' ? '#FFF' : '#D69A3A'} />
+            </TouchableOpacity>
+          </View>
 
-      <TouchableOpacity
-        style={[
-          styles.radioButton,
-          tipoAnimal === 'gato' && styles.radioButtonSelected
-        ]}
-        onPress={() => setTipoAnimal('gato')}
-      >
-        <Icon
-          name="cat"
-          size={24}
-          color={tipoAnimal === 'gato' ? '#FFF' : '#D69A3A'}
-        />
-      </TouchableOpacity>
-    </View>
+          <Text style={styles.label}>Raça:</Text>
+          <TextInput style={styles.input} value={racaAnimal} onChangeText={setRacaAnimal} />
 
+          <Text style={styles.label}>Peso (kg):</Text>
+          <TextInput style={styles.input} keyboardType="numeric" value={pesoAnimal} onChangeText={setPesoAnimal} />
 
-        <Text style={styles.label}>Raça do Animal:</Text>
-        <TextInput style={styles.input} value={racaAnimal} onChangeText={setRacaAnimal} placeholder="Digite a raça do animal" placeholderTextColor="#aaa" />
+          <Text style={styles.label}>Cor:</Text>
+          <TextInput style={styles.input} value={corAnimal} onChangeText={setCorAnimal} />
 
-        <Text style={styles.label}>Peso do Animal (kg):</Text>
-        <TextInput style={styles.input} value={pesoAnimal} onChangeText={setPesoAnimal} keyboardType="numeric" placeholder="Digite o peso do animal" placeholderTextColor="#aaa" />
+          <Text style={styles.label}>Idade:</Text>
+          <TextInput style={styles.input} keyboardType="numeric" value={idadeAnimal} onChangeText={setIdadeAnimal} />
 
-        <Text style={styles.label}>Cor do Animal:</Text>
-        <TextInput style={styles.input} value={corAnimal} onChangeText={setCorAnimal} placeholder="Digite a cor do animal" placeholderTextColor="#aaa" />
+          <Text style={styles.label}>Nome do Tutor:</Text>
+          <TextInput style={styles.input} value={nomeTutor} onChangeText={setNomeTutor} />
 
-        <Text style={styles.label}>Idade do Animal:</Text>
-        <TextInput style={styles.input} value={idadeAnimal} onChangeText={setIdadeAnimal} keyboardType="numeric" placeholder="Digite a idade do animal" placeholderTextColor="#aaa" />
+          <Text style={styles.label}>CPF do Tutor:</Text>
+          <TextInput style={styles.input} value={cpfTutor} onChangeText={setCpfTutor} keyboardType="numeric" />
 
-        <Text style={styles.label}>Nome do Tutor:</Text>
-        <TextInput style={styles.input} value={nomeTutor} onChangeText={setNomeTutor} placeholder="Digite o nome do tutor" placeholderTextColor="#aaa" />
+          <Text style={styles.label}>Foto do Animal:</Text>
+          <View style={styles.imageContainer}>
+            {imagem ? (
+              <Image source={{ uri: imagem.uri }} style={styles.imagem} />
+            ) : (
+              <View style={styles.emptyImage}><Text>Nenhuma imagem</Text></View>
+            )}
+          </View>
 
-        <Text style={styles.label}>CPF do Tutor:</Text>
-        <TextInput style={styles.input} value={cpfTutor} onChangeText={setCpfTutor} keyboardType="numeric" placeholder="Digite o CPF do tutor" placeholderTextColor="#aaa" />
-
-        <Text style={styles.label}>Data do Cadastro:</Text>
-        <TextInput style={[styles.input, styles.lockedInput]} value={data.toLocaleDateString()} editable={false} selectTextOnFocus={false} placeholderTextColor="#aaa" />
-
-        <Text style={styles.label}>Foto do Animal:</Text>
-        <View style={styles.imageContainer}>
-          {imagem ? (
-            <Image source={{ uri: imagem }} style={styles.imagem} />
-          ) : (
-            <View style={styles.emptyImage}>
-              <Text style={styles.emptyImageText}>Nenhuma imagem selecionada</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.selectButton} onPress={selecionarImagem}>
-            <Icon name="camera" size={24} color="#FFF" />
+            <Text style={styles.textoBotao}>Selecionar Imagem</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.selectButton} onPress={escolherImagemGaleria}>
-            <Icon name="image" size={24} color="#FFF" />
+
+          <Text style={styles.label}>Endereço:</Text>
+          <TextInput style={styles.input} value={endereco} onChangeText={setEndereco} placeholder="Digite o endereço..." />
+
+          <TouchableOpacity style={styles.botao} onPress={buscarCoordenadas}>
+            <Text style={styles.textoBotao}>Buscar Localização</Text>
           </TouchableOpacity>
-        </View>
 
-        <Text style={styles.label}>Marcar Localização no Mapa:</Text>
-        <MapView
-          style={styles.mapa}
-          initialRegion={{
-            ...localizacao,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          onPress={aoMarcarMapa}
-        >
-          <Marker coordinate={localizacao} />
-        </MapView>
+          {loadingMapa && <ActivityIndicator size="large" color="#D69A3A" style={{ marginTop: 10 }} />}
 
-        <TouchableOpacity style={styles.botao} onPress={aoSalvar}>
-          <Text style={styles.textoBotao}>Salvar Cadastro</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          {localizacao && (
+            <MapView
+              style={styles.mapa}
+              initialRegion={{
+                ...localizacao,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              <Marker coordinate={localizacao} />
+            </MapView>
+          )}
+
+          <TouchableOpacity style={[styles.botao, { marginTop: 20 }]} onPress={aoSalvar}>
+            <Text style={styles.textoBotao}>Salvar Cadastro</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       <Footer />
     </View>
