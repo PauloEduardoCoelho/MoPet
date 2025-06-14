@@ -120,6 +120,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
+  dropdownContainer: {
+    height: 50,
+    marginTop: 5,
+  },
+  dropdown: {
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  dropDownStyle: {
+    backgroundColor: '#fff',
+    borderRadius: 6,
+  },
 });
 
 export default styles;

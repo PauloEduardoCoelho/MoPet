@@ -4,7 +4,6 @@ import MapView, { Marker } from 'react-native-maps';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './styles';
-import Footer from '../../components/footer';
 
 export default function PetDetail() {
   const route = useRoute();
@@ -13,20 +12,33 @@ export default function PetDetail() {
 
   return (
     <View style={styles.container}>
+      {/* Botão de Fechar */}
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation.goBack()} // Navega para a tela anterior
         style={styles.closeButton}
       >
         <Icon name="close" size={28} color="#333" />
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {pet.imagem && (
-          <Image source={{ uri: pet.imagem }} style={styles.image} />
-        )}
+        {/* Imagem do Animal */}
+        <View style={styles.imageContainer}>
+          {pet.imagem ? (
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${pet.imagem}` }}
+              style={styles.image}
+            />
+          ) : (
+            <View style={styles.emptyImage}>
+              <Text style={styles.emptyImageText}>Sem Imagem</Text>
+            </View>
+          )}
+        </View>
 
+        {/* Nome do Animal */}
         <Text style={styles.title}>{pet.nome}</Text>
 
+        {/* Detalhes do Pet */}
         <View style={styles.infoBox}>
           <Text style={styles.label}>Tipo:</Text>
           <Text style={styles.value}>{pet.tipo}</Text>
@@ -38,12 +50,13 @@ export default function PetDetail() {
           <Text style={styles.value}>{pet.cor || 'Não informado'}</Text>
 
           <Text style={styles.label}>Peso:</Text>
-          <Text style={styles.value}>{pet.peso || 'Não informado'}</Text>
+          <Text style={styles.value}>{pet.peso || 'Não informado'} kg</Text>
 
           <Text style={styles.label}>Idade:</Text>
-          <Text style={styles.value}>{pet.idade || 'Não informado'}</Text>
+          <Text style={styles.value}>{pet.idade || 'Não informado'} anos</Text>
         </View>
 
+        {/* Detalhes do Tutor */}
         <View style={styles.infoBox}>
           <Text style={styles.label}>Tutor:</Text>
           <Text style={styles.value}>{pet.nomeTutor}</Text>
@@ -55,6 +68,7 @@ export default function PetDetail() {
           <Text style={styles.value}>{pet.dataCadastro}</Text>
         </View>
 
+        {/* Endereço */}
         {pet.endereco && (
           <View style={styles.infoBox}>
             <Text style={styles.label}>Endereço:</Text>
@@ -62,6 +76,7 @@ export default function PetDetail() {
           </View>
         )}
 
+        {/* Localização */}
         {pet.localizacao && (
           <MapView
             style={styles.map}
@@ -76,8 +91,6 @@ export default function PetDetail() {
           </MapView>
         )}
       </ScrollView>
-
-      <Footer />
     </View>
   );
 }

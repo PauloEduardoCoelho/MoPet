@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
 import api from '../../services/api';
 import * as SecureStore from 'expo-secure-store';
+import { TextInputMask } from 'react-native-masked-text'; // Importando a biblioteca para máscara
 
 export default function CadastroAnimal() {
   const [nomeAnimal, setNomeAnimal] = useState('');
@@ -66,9 +67,16 @@ export default function CadastroAnimal() {
   };
 
   const aoSalvar = async () => {
+    // Verifica se todos os campos obrigatórios estão preenchidos
     if (!nomeAnimal || !tipoAnimal || !cpfTutor || !localizacao || !imagem) {
       return Alert.alert("Preencha os campos obrigatórios");
     }
+
+    // Corrigir formato do tipo (para garantir que seja "Cachorro" ou "Gato")
+    const tipoAnimalFormatted = tipoAnimal.charAt(0).toUpperCase() + tipoAnimal.slice(1);
+
+    // Corrige formatação de raca, remove espaços e coloca hífen
+    const racaAnimalFormatted = racaAnimal.trim().replace(/\s+/g, '-');
 
     const token = await SecureStore.getItemAsync('token');
     if (!token) return Alert.alert("Usuário não autenticado");
@@ -76,8 +84,8 @@ export default function CadastroAnimal() {
     const dados = {
       nome: nomeAnimal,
       idade: idadeAnimal,
-      tipo: tipoAnimal,
-      raca: racaAnimal,
+      tipo: tipoAnimalFormatted,  // Envia o valor corrigido para tipo
+      raca: racaAnimalFormatted,  // Envia o valor corrigido para raca
       peso: pesoAnimal,
       cor: corAnimal,
       nomeTutor,
@@ -87,10 +95,13 @@ export default function CadastroAnimal() {
       localizacao,
     };
 
+    console.log("Dados enviados:", dados); // Verifique os dados enviados no console
+
     try {
-      await api.post('/pets', dados, {
+      const response = await api.post('/pets', dados, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log("Resposta do servidor:", response.data); // Verifique a resposta do servidor
       Alert.alert("Cadastro realizado com sucesso!");
 
       // Resetar formulário
@@ -106,8 +117,8 @@ export default function CadastroAnimal() {
       setEndereco('');
       setLocalizacao(null);
     } catch (err) {
-      console.error(err);
-      Alert.alert("Erro ao salvar no banco");
+      console.error("Erro ao salvar no banco:", err.response?.data); // Exibe detalhes do erro
+      Alert.alert("Erro ao salvar no banco", err.response?.data?.error || "Erro desconhecido");
     }
   };
 
@@ -119,7 +130,7 @@ export default function CadastroAnimal() {
         </Animatable.Text>
       </View>
 
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 120 }]} keyboardShouldPersistTaps="handled">
           <Text style={styles.label}>Nome do Animal:</Text>
           <TextInput style={styles.input} value={nomeAnimal} onChangeText={setNomeAnimal} placeholder="Ex: Thor" />
@@ -141,7 +152,7 @@ export default function CadastroAnimal() {
           </View>
 
           <Text style={styles.label}>Raça:</Text>
-          <TextInput style={styles.input} value={racaAnimal} onChangeText={setRacaAnimal} />
+          <TextInput style={styles.input} value={racaAnimal} onChangeText={setRacaAnimal} placeholder="Ex: Vira-lata" />
 
           <Text style={styles.label}>Peso (kg):</Text>
           <TextInput style={styles.input} keyboardType="numeric" value={pesoAnimal} onChangeText={setPesoAnimal} />
@@ -156,7 +167,13 @@ export default function CadastroAnimal() {
           <TextInput style={styles.input} value={nomeTutor} onChangeText={setNomeTutor} />
 
           <Text style={styles.label}>CPF do Tutor:</Text>
-          <TextInput style={styles.input} value={cpfTutor} onChangeText={setCpfTutor} keyboardType="numeric" />
+          <TextInputMask
+            type={'cpf'}
+            value={cpfTutor}
+            onChangeText={setCpfTutor}
+            style={styles.input}
+            placeholder="Digite o CPF"
+          />
 
           <Text style={styles.label}>Foto do Animal:</Text>
           <View style={styles.imageContainer}>
