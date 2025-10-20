@@ -1,32 +1,32 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import Routes from './src/routes';
+import { StatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
-import LoadingScreen from './src/screens/LoadingScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import Routes from './src/routes';
+import LoadingScreen from './src/pages/LoadingScreen';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [userLogged, setUserLogged] = useState(false);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    (async () => {
       const token = await SecureStore.getItemAsync('token');
-      if (token) {
-        setUserLogged(true); // Usuário está logado
-      } else {
-        setUserLogged(false); // Usuário não está logado
-      }
-      setLoading(false); // Fim do carregamento
-    };
-
-    checkLoginStatus();
+      setUserLogged(!!token);
+      setLoading(false);
+    })();
   }, []);
 
   return (
-    <NavigationContainer>
-      <StatusBar backgroundColor="#D69A3A" barStyle="light-content" />
-      {loading ? <LoadingScreen /> : <Routes userLogged={userLogged} />}
-    </NavigationContainer>
+    <SafeAreaProvider>
+      {/* Expo StatusBar: style controla a cor dos ícones, backgroundColor só no Android */}
+      <StatusBar style="light" backgroundColor="#D69A3A" />
+      {/* key muda quando login muda, garantindo reset limpo de navegação */}
+      <NavigationContainer key={userLogged ? 'in' : 'out'}>
+        {loading ? <LoadingScreen /> : <Routes userLogged={userLogged} />}
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

@@ -32,6 +32,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
     backgroundColor: '#fff',
+    color: '#222',
+  },
+  disabledInput: {
+    backgroundColor: '#f1f1f1',
+    color: '#9EA0A4',
   },
   radioGroup: {
     flexDirection: 'row',
@@ -46,6 +51,9 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 6,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   radioButtonSelected: {
     backgroundColor: '#D69A3A',
@@ -70,6 +78,31 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+
+  // novos estilos para o chip "Não sei informar"
+  unknownChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#D69A3A',
+    backgroundColor: '#fff',
+  },
+  unknownChipOn: {
+    backgroundColor: '#D69A3A',
+    borderColor: '#D69A3A',
+  },
+  unknownText: {
+    color: '#D69A3A',
+    fontWeight: '600',
+  },
+  unknownTextOn: {
+    color: '#fff',
   },
 });
 

@@ -1,59 +1,59 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D69A3A',
   },
   containerHeader: {
-    marginTop: '14%',
-    marginBottom: '8%',
-    paddingStart: '5%',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
   },
-  message: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  headerTitle: {
     color: '#FFF',
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   containerForm: {
-    backgroundColor: '#FFF',
     flex: 1,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    paddingStart: '5%',
-    paddingEnd: '5%',
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
+    gap: 8,
   },
-  title: {
-    fontSize: 20,
-    marginTop: 28,
+  label: {
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 8,
   },
   input: {
-    borderBottomWidth: 1,
-    height: 40,
-    marginBottom: 12,
-    fontSize: 16,
+    height: 48,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    paddingHorizontal: 12,
+    color: '#333',
   },
   button: {
+    marginTop: 16,
     backgroundColor: '#D69A3A',
-    width: '100%',
-    borderRadius: 4,
-    paddingVertical: 8,
-    marginTop: 14,
-    justifyContent: 'center',
+    borderRadius: 8,
+    height: 48,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 18,
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  buttonGhost: {
+    marginTop: 8,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonGhostText: {
+    color: '#D69A3A',
     fontWeight: 'bold',
   },
-  buttonRegister: {
-    marginTop: 14,
-    alignSelf: 'center',
-  },
-  registerText: {
-    color: '#A1A1A1',
-  },
 });
-
-export default styles;

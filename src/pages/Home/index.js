@@ -21,14 +21,6 @@ export default function Home() {
         <View style={styles.iconGrid}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => navigation.navigate('CadastroAnimal')}
-          >
-            <Icon name="plus-box" size={40} color="#D69A3A" />
-            <Text style={styles.iconLabel}>Cadastrar Animal</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.iconButton}
             onPress={() => navigation.navigate('AnimalList')}
           >
             <Icon name="format-list-bulleted" size={40} color="#D69A3A" />

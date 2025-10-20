@@ -1,186 +1,210 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, Image, ScrollView, TouchableOpacity,
-  KeyboardAvoidingView, Platform, Alert, ActivityIndicator
+  KeyboardAvoidingView, Platform, Alert
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import * as ImagePicker from 'expo-image-picker';
-import Footer from '../../components/footer';
-import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import * as Animatable from 'react-native-animatable';
-import api from '../../services/api';
 import * as SecureStore from 'expo-secure-store';
-import { TextInputMask } from 'react-native-masked-text'; // Importando a biblioteca para máscara
+import api from '../../services/api';
+import HeaderLayout from '../../components/HeaderLayout';
+import styles from './styles';
+import { getMe } from '../../services/userService';
 
-export default function CadastroAnimal() {
+export default function CadastroAnimal({ navigation }) {
   const [nomeAnimal, setNomeAnimal] = useState('');
   const [idadeAnimal, setIdadeAnimal] = useState('');
-  const [nomeTutor, setNomeTutor] = useState('');
   const [tipoAnimal, setTipoAnimal] = useState('');
   const [racaAnimal, setRacaAnimal] = useState('');
   const [pesoAnimal, setPesoAnimal] = useState('');
+  const [pesoDesconhecido, setPesoDesconhecido] = useState(false);
   const [corAnimal, setCorAnimal] = useState('');
-  const [cpfTutor, setCpfTutor] = useState('');
   const [imagem, setImagem] = useState(null);
-  const [localizacao, setLocalizacao] = useState(null);
-  const [endereco, setEndereco] = useState('');
-  const [loadingMapa, setLoadingMapa] = useState(false);
+
+  const [tutorNome, setTutorNome] = useState('');
+  const [tutorCpf, setTutorCpf] = useState('');
+  const [tutorTelefone, setTutorTelefone] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const me = await getMe();
+        setTutorNome(me?.name ?? '');
+        setTutorCpf(me?.cpf ?? '');
+        setTutorTelefone(me?.phone ?? '');
+      } catch {
+      }
+    })();
+  }, []);
 
   const selecionarImagem = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       base64: true,
-      quality: 0.5
+      quality: 0.5,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
     });
-    if (!result.canceled && result.assets.length > 0) {
+    if (!result.canceled && result.assets?.length) {
       setImagem(result.assets[0]);
     }
   };
 
-  const buscarCoordenadas = async () => {
-    if (!endereco.trim()) return Alert.alert("Digite um endereço válido");
-    setLoadingMapa(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(endereco)}&format=json`,
-        {
-          headers: {
-            'User-Agent': 'MoPetApp/1.0',
-            'Accept-Language': 'pt-BR'
-          }
-        }
-      );
-      const data = await response.json();
-      if (data.length > 0) {
-        setLocalizacao({
-          latitude: parseFloat(data[0].lat),
-          longitude: parseFloat(data[0].lon),
-        });
-      } else {
-        Alert.alert("Endereço não encontrado");
-      }
-    } catch (err) {
-      Alert.alert("Erro ao buscar localização", err.message);
-    } finally {
-      setLoadingMapa(false);
-    }
-  };
-
   const aoSalvar = async () => {
-    // Verifica se todos os campos obrigatórios estão preenchidos
-    if (!nomeAnimal || !tipoAnimal || !cpfTutor || !localizacao || !imagem) {
-      return Alert.alert("Preencha os campos obrigatórios");
+    if (!nomeAnimal || !tipoAnimal || !imagem) {
+      return Alert.alert('Atenção', 'Preencha pelo menos: Nome, Tipo e Foto.');
     }
-
-    // Corrigir formato do tipo (para garantir que seja "Cachorro" ou "Gato")
-    const tipoAnimalFormatted = tipoAnimal.charAt(0).toUpperCase() + tipoAnimal.slice(1);
-
-    // Corrige formatação de raca, remove espaços e coloca hífen
-    const racaAnimalFormatted = racaAnimal.trim().replace(/\s+/g, '-');
 
     const token = await SecureStore.getItemAsync('token');
-    if (!token) return Alert.alert("Usuário não autenticado");
+    if (!token) return Alert.alert('Sessão expirada', 'Faça login novamente.');
+
+    const tipoNormalizado =
+      tipoAnimal?.toLowerCase() === 'gato' ? 'Gato' :
+      tipoAnimal?.toLowerCase() === 'cachorro' ? 'Cachorro' : '';
 
     const dados = {
-      nome: nomeAnimal,
-      idade: idadeAnimal,
-      tipo: tipoAnimalFormatted,  // Envia o valor corrigido para tipo
-      raca: racaAnimalFormatted,  // Envia o valor corrigido para raca
-      peso: pesoAnimal,
-      cor: corAnimal,
-      nomeTutor,
-      cpfTutor,
-      dataCadastro: new Date().toLocaleDateString(),
+      nome: nomeAnimal.trim(),
+      idade: idadeAnimal?.toString().trim(),
+      tipo: tipoNormalizado,
+      raca: racaAnimal.trim(),
+      ...(pesoDesconhecido ? {} : { peso: pesoAnimal?.toString().trim() }),
+      cor: corAnimal.trim(),
+      dataCadastro: new Date().toLocaleDateString('pt-BR'),
       imagem: imagem.base64,
-      localizacao,
+
+      ...(tutorNome ? { nomeTutor: tutorNome } : {}),
+      ...(tutorCpf ? { cpfTutor: tutorCpf } : {}),
+      ...(tutorTelefone ? { telefoneTutor: tutorTelefone } : {}),
     };
 
-    console.log("Dados enviados:", dados); // Verifique os dados enviados no console
-
     try {
-      const response = await api.post('/pets', dados, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      console.log("Resposta do servidor:", response.data); // Verifique a resposta do servidor
-      Alert.alert("Cadastro realizado com sucesso!");
-
-      // Resetar formulário
-      setNomeAnimal('');
-      setIdadeAnimal('');
-      setTipoAnimal('');
-      setRacaAnimal('');
-      setPesoAnimal('');
-      setCorAnimal('');
-      setNomeTutor('');
-      setCpfTutor('');
-      setImagem(null);
-      setEndereco('');
-      setLocalizacao(null);
+      await api.post('/pets', dados, { headers: { Authorization: `Bearer ${token}` } });
+      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            setNomeAnimal('');
+            setIdadeAnimal('');
+            setTipoAnimal('');
+            setRacaAnimal('');
+            setPesoAnimal('');
+            setPesoDesconhecido(false);
+            setCorAnimal('');
+            setImagem(null);
+            navigation.goBack();
+          },
+        },
+      ]);
     } catch (err) {
-      console.error("Erro ao salvar no banco:", err.response?.data); // Exibe detalhes do erro
-      Alert.alert("Erro ao salvar no banco", err.response?.data?.error || "Erro desconhecido");
+      console.error('Erro ao salvar no banco:', err.response?.data || err.message);
+      const msg = err.response?.data?.error || 'Erro ao salvar no banco';
+      Alert.alert('Erro', msg);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Animatable.Text animation="fadeInLeft" delay={300} style={styles.headerTitle}>
-          Cadastrar Animal
-        </Animatable.Text>
-      </View>
+    <HeaderLayout title="Cadastrar Animal" scroll>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingBottom: 24 }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.label}>Nome do Animal</Text>
+          <TextInput
+            style={styles.input}
+            value={nomeAnimal}
+            onChangeText={setNomeAnimal}
+            placeholder="Ex: Thor"
+            placeholderTextColor="#9EA0A4"
+          />
 
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 120 }]} keyboardShouldPersistTaps="handled">
-          <Text style={styles.label}>Nome do Animal:</Text>
-          <TextInput style={styles.input} value={nomeAnimal} onChangeText={setNomeAnimal} placeholder="Ex: Thor" />
-
-          <Text style={styles.label}>Tipo do Animal:</Text>
+          <Text style={styles.label}>Tipo do Animal</Text>
           <View style={styles.radioGroup}>
             <TouchableOpacity
               style={[styles.radioButton, tipoAnimal === 'cachorro' && styles.radioButtonSelected]}
               onPress={() => setTipoAnimal('cachorro')}
             >
               <Icon name="dog" size={24} color={tipoAnimal === 'cachorro' ? '#FFF' : '#D69A3A'} />
+              <Text style={[styles.radioText, tipoAnimal === 'cachorro' && styles.radioTextSelected]}>
+                Cachorro
+              </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={[styles.radioButton, tipoAnimal === 'gato' && styles.radioButtonSelected]}
               onPress={() => setTipoAnimal('gato')}
             >
               <Icon name="cat" size={24} color={tipoAnimal === 'gato' ? '#FFF' : '#D69A3A'} />
+              <Text style={[styles.radioText, tipoAnimal === 'gato' && styles.radioTextSelected]}>
+                Gato
+              </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Raça:</Text>
-          <TextInput style={styles.input} value={racaAnimal} onChangeText={setRacaAnimal} placeholder="Ex: Vira-lata" />
-
-          <Text style={styles.label}>Peso (kg):</Text>
-          <TextInput style={styles.input} keyboardType="numeric" value={pesoAnimal} onChangeText={setPesoAnimal} />
-
-          <Text style={styles.label}>Cor:</Text>
-          <TextInput style={styles.input} value={corAnimal} onChangeText={setCorAnimal} />
-
-          <Text style={styles.label}>Idade:</Text>
-          <TextInput style={styles.input} keyboardType="numeric" value={idadeAnimal} onChangeText={setIdadeAnimal} />
-
-          <Text style={styles.label}>Nome do Tutor:</Text>
-          <TextInput style={styles.input} value={nomeTutor} onChangeText={setNomeTutor} />
-
-          <Text style={styles.label}>CPF do Tutor:</Text>
-          <TextInputMask
-            type={'cpf'}
-            value={cpfTutor}
-            onChangeText={setCpfTutor}
+          <Text style={styles.label}>Raça</Text>
+          <TextInput
             style={styles.input}
-            placeholder="Digite o CPF"
+            value={racaAnimal}
+            onChangeText={setRacaAnimal}
+            placeholder="Ex: Vira-lata"
+            placeholderTextColor="#9EA0A4"
           />
 
-          <Text style={styles.label}>Foto do Animal:</Text>
+          <Text style={styles.label}>Peso (kg)</Text>
+          <View style={{ gap: 8 }}>
+            <TextInput
+              style={[styles.input, pesoDesconhecido && styles.disabledInput]}
+              keyboardType="numeric"
+              value={pesoAnimal}
+              onChangeText={setPesoAnimal}
+              placeholder="Ex: 7.5"
+              placeholderTextColor="#9EA0A4"
+              editable={!pesoDesconhecido}
+            />
+            <TouchableOpacity
+              style={[styles.unknownChip, pesoDesconhecido && styles.unknownChipOn]}
+              onPress={() => setPesoDesconhecido(!pesoDesconhecido)}
+              activeOpacity={0.8}
+            >
+              <Icon
+                name={pesoDesconhecido ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                size={20}
+                color={pesoDesconhecido ? '#fff' : '#D69A3A'}
+              />
+              <Text style={[styles.unknownText, pesoDesconhecido && styles.unknownTextOn]}>
+                Não sei informar
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.label}>Cor</Text>
+          <TextInput
+            style={styles.input}
+            value={corAnimal}
+            onChangeText={setCorAnimal}
+            placeholder="Ex: Caramelo"
+            placeholderTextColor="#9EA0A4"
+          />
+
+          <Text style={styles.label}>Idade (anos)</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={idadeAnimal}
+            onChangeText={setIdadeAnimal}
+            placeholder="Ex: 3"
+            placeholderTextColor="#9EA0A4"
+          />
+
+          <Text style={styles.label}>Foto do Animal</Text>
           <View style={styles.imageContainer}>
             {imagem ? (
               <Image source={{ uri: imagem.uri }} style={styles.imagem} />
             ) : (
-              <View style={styles.emptyImage}><Text>Nenhuma imagem</Text></View>
+              <View style={styles.emptyImage}>
+                <Text style={styles.emptyImageText}>Nenhuma imagem</Text>
+              </View>
             )}
           </View>
 
@@ -188,35 +212,11 @@ export default function CadastroAnimal() {
             <Text style={styles.textoBotao}>Selecionar Imagem</Text>
           </TouchableOpacity>
 
-          <Text style={styles.label}>Endereço:</Text>
-          <TextInput style={styles.input} value={endereco} onChangeText={setEndereco} placeholder="Digite o endereço..." />
-
-          <TouchableOpacity style={styles.botao} onPress={buscarCoordenadas}>
-            <Text style={styles.textoBotao}>Buscar Localização</Text>
-          </TouchableOpacity>
-
-          {loadingMapa && <ActivityIndicator size="large" color="#D69A3A" style={{ marginTop: 10 }} />}
-
-          {localizacao && (
-            <MapView
-              style={styles.mapa}
-              initialRegion={{
-                ...localizacao,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-            >
-              <Marker coordinate={localizacao} />
-            </MapView>
-          )}
-
           <TouchableOpacity style={[styles.botao, { marginTop: 20 }]} onPress={aoSalvar}>
             <Text style={styles.textoBotao}>Salvar Cadastro</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <Footer />
-    </View>
+    </HeaderLayout>
   );
 }

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const PetSchema = new mongoose.Schema({
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // << novo
   nome: { type: String, required: true },
   idade: String,
   tipo: { type: String, enum: ['Cachorro', 'Gato'], required: true },

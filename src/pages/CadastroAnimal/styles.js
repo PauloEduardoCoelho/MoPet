@@ -1,139 +1,98 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#D69A3A',
-  },
-  header: {
-    backgroundColor: '#D69A3A',
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-  },
-  headerTitle: {
-    color: '#FFF',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  content: {
-    flexGrow: 1,
-    backgroundColor: '#FFF',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-    paddingBottom: 100,
-  },
+  content: { padding: 20 },
+
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginTop: 15,
+    marginTop: 14,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 5,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 6,
     fontSize: 14,
     backgroundColor: '#fff',
   },
-  lockedInput: {
-    backgroundColor: '#e0e0e0',
+  disabledInput: {
+    backgroundColor: '#f1f1f1',
+    color: '#9EA0A4',
   },
-  imagem: {
-    width: '100%',
-    height: 200,
-    marginTop: 10,
-    borderRadius: 6,
-  },
-  mapa: {
-    width: '100%',
-    height: 300,
-    marginTop: 10,
-  },
-  botao: {
-    backgroundColor: '#D69A3A',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+
+  radioGroup: { flexDirection: 'row', gap: 10, marginTop: 8, marginBottom: 10 },
+  radioButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#fff',
   },
-  textoBotao: {
-    color: '#fff',
+  radioButtonSelected: { backgroundColor: '#D69A3A', borderColor: '#D69A3A' },
+  radioText: { color: '#333', fontWeight: 'bold' },
+  radioTextSelected: { color: '#FFF', fontWeight: 'bold' },
+
+  imageContainer: { marginTop: 10, marginBottom: 10 },
+  imagem: { width: '100%', height: 220, marginTop: 10, borderRadius: 10 },
+  emptyImage: {
+    height: 220,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e5e5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyImageText: { color: '#9EA0A4', fontSize: 14 },
+
+  selectButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#D69A3A',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  selectButtonText: {
+    color: '#D69A3A',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  radioGroup: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 8,
-    marginBottom: 10,
-  },
-  radioButton: {
-    flex: 1,
-    padding: 10,
+
+  unknownChip: {
+    alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  radioButtonSelected: {
-    backgroundColor: '#D69A3A',
     borderColor: '#D69A3A',
-  },
-  radioText: {
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  radioTextSelected: {
-    color: '#FFF',
-  },
-  imageContainer: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  emptyImage: {
-    height: 200,
-    backgroundColor: '#eee',
-    borderRadius: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  emptyImageText: {
-    color: '#999',
-    fontSize: 14,
-  },
-  buttonRow: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 20,
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#fff',
   },
-  selectButton: {
-    flex: 1,
+  unknownChipOn: { backgroundColor: '#D69A3A', borderColor: '#D69A3A' },
+  unknownText: { color: '#D69A3A', fontWeight: '600' },
+  unknownTextOn: { color: '#fff' },
+
+  botao: {
     backgroundColor: '#D69A3A',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
+    marginTop: 10,
   },
-  dropdownContainer: {
-    height: 50,
-    marginTop: 5,
-  },
-  dropdown: {
-    backgroundColor: '#fff',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  dropDownStyle: {
-    backgroundColor: '#fff',
-    borderRadius: 6,
-  },
+  textoBotao: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default styles;

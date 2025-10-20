@@ -1,86 +1,62 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../services/api';
 import styles from './styles';
 
 export default function Register() {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    async function handleRegister() {
-        if (!name || !email || !password) {
-            Alert.alert('Campos obrigatórios', 'Preencha todos os campos para continuar.');
-            return;
-        }
-
-        try {
-            await api.post('/auth/register', {
-                name,
-                email,
-                password,
-                role: 'user' // papel padrão
-            });
-
-            Alert.alert('Cadastro realizado!', 'Sua conta foi criada com sucesso.');
-            navigation.navigate('SignIn');
-        } catch (error) {
-            const msg = error.response?.data?.error || 'Erro ao cadastrar. Tente novamente.';
-            Alert.alert('Erro no cadastro', msg);
-        }
+  async function handleRegister() {
+    try {
+      if (!name || !email || !password) {
+        return Alert.alert('Atenção', 'Nome, email e senha são obrigatórios.');
+      }
+      await api.post('/auth/register', { name, email, password, cpf, phone });
+      Alert.alert('Sucesso', 'Conta criada!', [
+        { text: 'OK', onPress: () => navigation.navigate('SignIn') }
+      ]);
+    } catch (err) {
+      const msg = err?.response?.data?.error || 'Erro ao registrar.';
+      Alert.alert('Erro', msg);
     }
+  }
 
-    return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-            <View style={styles.container}>
-                <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
-                    <Text style={styles.message}>Crie sua conta</Text>
-                </Animatable.View>
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
+          <Text style={styles.message}>Criar conta</Text>
+        </Animatable.View>
 
-                <Animatable.View animation="fadeInUp" style={styles.containerForm}>
-                    <Text style={styles.title}>Nome</Text>
-                    <TextInput 
-                        placeholder="Digite seu nome completo"
-                        style={styles.input}
-                        value={name}
-                        onChangeText={setName}
-                    />
+        <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+          <Text style={styles.title}>Nome</Text>
+          <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Seu nome" placeholderTextColor="#aaa" />
 
-                    <Text style={styles.title}>Email</Text>
-                    <TextInput 
-                        placeholder="Digite seu email"
-                        style={styles.input}
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
+          <Text style={styles.title}>CPF (opcional)</Text>
+          <TextInput style={styles.input} value={cpf} onChangeText={setCpf} placeholder="000.000.000-00" placeholderTextColor="#aaa" keyboardType="numeric" />
 
-                    <Text style={styles.title}>Senha</Text>
-                    <TextInput 
-                        placeholder="Crie uma senha"
-                        secureTextEntry
-                        style={styles.input}
-                        value={password}
-                        onChangeText={setPassword}
-                    />
-                    
-                    <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                        <Text style={styles.buttonText}>Cadastrar</Text>
-                    </TouchableOpacity>
+          <Text style={styles.title}>Telefone (opcional)</Text>
+          <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="(XX) 9XXXX-XXXX" placeholderTextColor="#aaa" keyboardType="phone-pad" />
 
-                    <TouchableOpacity 
-                        style={styles.buttonRegister}
-                        onPress={() => navigation.navigate('SignIn')}
-                    >
-                        <Text style={styles.registerText}>Já possui uma conta? Faça login</Text>
-                    </TouchableOpacity>
-                </Animatable.View>
-            </View>
-        </KeyboardAvoidingView>
-    );
+          <Text style={styles.title}>Email</Text>
+          <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="seu@email.com" placeholderTextColor="#aaa" keyboardType="email-address" autoCapitalize="none" />
+
+          <Text style={styles.title}>Senha</Text>
+          <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Sua senha" placeholderTextColor="#aaa" secureTextEntry />
+
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Criar conta</Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      </View>
+    </KeyboardAvoidingView>
+  );
 }
