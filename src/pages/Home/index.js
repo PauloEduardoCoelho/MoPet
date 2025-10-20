@@ -18,31 +18,7 @@ export default function Home() {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.iconGrid}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('AnimalList')}
-          >
-            <Icon name="format-list-bulleted" size={40} color="#D69A3A" />
-            <Text style={styles.iconLabel}>Listar Animais</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('Building')}
-          >
-            <Icon name="chart-bar" size={40} color="#D69A3A" />
-            <Text style={styles.iconLabel}>Análise de Dados</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('Building')}
-          >
-            <Icon name="calendar-check" size={40} color="#D69A3A" />
-            <Text style={styles.iconLabel}>Campanhas Ativas</Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
       <Footer />
