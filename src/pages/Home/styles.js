@@ -1,56 +1,44 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#D69A3A',
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-    backgroundColor: '#D69A3A',
-  },
-  headerTitle: {
-    color: '#FFF',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-  },
-  iconGrid: {
+  hero: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    gap: 12,
+    backgroundColor: '#FFF6E8',
+    borderColor: '#FFE0A6',
+    borderWidth: 1,
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 14,
+    alignItems: 'flex-start',
   },
-  iconButton: {
+  heroTitle: { fontSize: 18, fontWeight: '800', color: '#A86B07', marginBottom: 4 },
+  heroText: { color: '#5b5b5b' },
+
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
+    marginBottom: 12,
+  },
+  cardTitle: { fontSize: 16, fontWeight: '800', color: '#1b1b1b', marginBottom: 8 },
+  cardText: { color: '#555', lineHeight: 20 },
+  cardBullet: { color: '#444', marginTop: 6 },
+
+  cta: {
+    marginTop: 12,
+    backgroundColor: '#D69A3A',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    width: '47%',
-    height: 120,
-    marginBottom: 20,
+    gap: 8,
   },
-  iconLabel: {
-    marginTop: 10,
-    fontSize: 14,
-    color: '#333',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
+  ctaText: { color: '#fff', fontWeight: '700' },
 });
 
 export default styles;

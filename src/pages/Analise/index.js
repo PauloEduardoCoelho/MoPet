@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator
+  View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Alert
 } from 'react-native';
 import HeaderLayout from '../../components/HeaderLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as SecureStore from 'expo-secure-store';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import { captureRef } from 'react-native-view-shot';
 import { getCampaigns } from '../../services/campaignService';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -34,18 +37,21 @@ export default function Analise() {
   const [loading, setLoading] = useState(true);
   const [months] = useState(buildLast3Months());
   const [selectedIdx, setSelectedIdx] = useState(0);
-
   const isFocused = useIsFocused();
-
   const canSee = role === 'manager' || role === 'superadmin';
+
+  // ref do painel (pra exportar PNG)
+  const panelRef = useRef(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       const r = await SecureStore.getItemAsync('role');
       setRole(r || 'user');
-      const list = await getCampaigns(); // precisa trazer registrations
+      const list = await getCampaigns(); // precisa trazer "registrations" no backend
       setAllCampaigns(Array.isArray(list) ? list : []);
+    } catch (e) {
+      Alert.alert('Erro', 'Falha ao obter dados das campanhas.');
     } finally {
       setLoading(false);
     }
@@ -104,6 +110,52 @@ export default function Analise() {
     );
   };
 
+  // === EXPORTAÇÕES ===
+  const exportCSV = async () => {
+    try {
+      const lines = [];
+      const monthLabel = selectedMonth?.label ?? '';
+      lines.push(`Mês;${monthLabel}`);
+      lines.push(`Campanhas no mês;${totalCampaigns}`);
+      lines.push(`Animais atendidos;${totalAnimals}`);
+      lines.push(`Cidades atendidas;${citiesCount}`);
+      lines.push(`Ocupação média;${occPct}%`);
+      lines.push(''); // linha em branco
+      lines.push('CEP;Dia;Hora;Cidade;Bairro;Rua;Número;Capacidade;Inscritos');
+
+      campaigns.forEach(c => {
+        const regs = Array.isArray(c.registrations) ? c.registrations.length : 0;
+        lines.push([
+          c.cep || '',
+          c.day || '',
+          c.time || '',
+          c.address?.city || '',
+          c.address?.neighborhood || '',
+          c.address?.street || '',
+          c.number || '',
+          c.capacity ?? '',
+          regs
+        ].map(v => String(v).replace(/;/g, ',')).join(';'));
+      });
+
+      const csv = lines.join('\n');
+      const fileUri = `${FileSystem.cacheDirectory}analise_${selectedMonth?.key || 'mes'}.csv`;
+      await FileSystem.writeAsStringAsync(fileUri, csv, { encoding: FileSystem.EncodingType.UTF8 });
+      await Sharing.shareAsync(fileUri, { mimeType: 'text/csv', dialogTitle: 'Exportar CSV' });
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível exportar o CSV.');
+    }
+  };
+
+  const exportPNG = async () => {
+    try {
+      const uri = await captureRef(panelRef, { format: 'png', quality: 1 });
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Exportar PNG' });
+    } catch (e) {
+      Alert.alert('Erro', 'Não foi possível exportar a imagem.');
+    }
+  };
+
   if (!canSee) {
     return (
       <HeaderLayout title="Análise de Dados">
@@ -118,6 +170,7 @@ export default function Analise() {
 
   return (
     <HeaderLayout title="Análise de Dados" scroll={false}>
+      {/* seletor de mês */}
       <View style={styles.monthRow}>
         {months.map((m, idx) => {
           const active = idx === selectedIdx;
@@ -136,12 +189,26 @@ export default function Analise() {
         })}
       </View>
 
+      {/* botões de exportação */}
+      <View style={styles.exportRow}>
+        <TouchableOpacity style={[styles.exportBtn, { backgroundColor: '#0EA5E9' }]} onPress={exportCSV}>
+          <Icon name="file-delimited" size={18} color="#fff" />
+          <Text style={styles.exportText}>Exportar CSV</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.exportBtn, { backgroundColor: '#10B981' }]} onPress={exportPNG}>
+          <Icon name="image" size={18} color="#fff" />
+          <Text style={styles.exportText}>Exportar PNG</Text>
+        </TouchableOpacity>
+      </View>
+
       {loading ? (
         <View style={{ alignItems: 'center', marginTop: 24 }}>
           <ActivityIndicator size="large" color="#D69A3A" />
         </View>
       ) : (
-        <>
+        // tudo que será “printado” fica dentro deste contêiner
+        <View ref={panelRef} collapsable={false}>
+          {/* KPIs */}
           <View style={styles.kpiGrid}>
             <View style={styles.kpiCard}>
               <Text style={styles.kpiLabel}>Campanhas no mês</Text>
@@ -161,6 +228,7 @@ export default function Analise() {
             </View>
           </View>
 
+          {/* gráfico simples por campanha */}
           <Text style={styles.sectionTitle}>Ocupação por campanha</Text>
           {campaigns.length === 0 ? (
             <Text style={styles.emptyText}>Sem campanhas neste mês.</Text>
@@ -174,7 +242,7 @@ export default function Analise() {
               showsVerticalScrollIndicator={false}
             />
           )}
-        </>
+        </View>
       )}
     </HeaderLayout>
   );
@@ -196,6 +264,21 @@ const styles = StyleSheet.create({
   monthChipOn: { backgroundColor: '#D69A3A' },
   monthChipText: { color: '#333', fontWeight: '600' },
   monthChipTextOn: { color: '#fff' },
+
+  exportRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 14,
+  },
+  exportBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  exportText: { color: '#fff', fontWeight: '700' },
 
   kpiGrid: {
     flexDirection: 'row',
