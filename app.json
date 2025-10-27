@@ -12,20 +12,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#D69A3A"
     },
-    "ios": {
-      "supportsTablet": true
-    },
+    "ios": { "supportsTablet": true },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#D69A3A"
       }
     },
-    "web": {
-      "favicon": "./assets/logo.png"
-    },
-    "plugins": [
-      "expo-secure-store"
-    ]
+    "web": { "favicon": "./assets/logo.png" },
+    "plugins": ["expo-secure-store"],
+    "extra": {
+      "EXPO_PUBLIC_API_URL": "https://inappropriately-subduable-earnest.ngrok-free.dev/api"
+    }
   }
 }
