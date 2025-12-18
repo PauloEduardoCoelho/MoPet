@@ -1,92 +1,95 @@
-import React from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import * as Animatable from 'react-native-animatable'
+import React, { useState, useEffect } from "react";
+import {
+  View, Text, TextInput, TouchableOpacity, Alert,
+  KeyboardAvoidingView, Platform
+} from "react-native";
+import * as Animatable from "react-native-animatable";
+import { useNavigation } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
+import api from "../../services/api";
+import * as LocalAuthentication from "expo-local-authentication";
+import styles from "./styles";
 
-export default function SignIn() {
-    return(
-        <View style={styles.container}>
-            <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
-                <Text style={styles.message}>Bem-vindo(a)</Text>
-            </Animatable.View>
+export default function SignIn({ route }) {
+  const navigation = useNavigation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const userLogged = route?.params?.userLogged ?? false;
 
-            <Animatable.View animation="fadeInUp" style={styles.containerForm}>
-                <Text style={styles.title}>Email</Text>
-                <TextInput 
-                placeholder="Digite um email..."
-                style={styles.input}
-                />
+  useEffect(() => { if (userLogged) handleBiometricAuth(); }, [userLogged]);
 
-                <Text style={styles.title}>Senha</Text>
-                <TextInput 
-                placeholder="Sua senha"
-                style={styles.input}
-                />
-                
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Acessar</Text>
-                </TouchableOpacity>
+  function goToApp() { navigation.replace('AppTabs'); }
 
-                <TouchableOpacity style={styles.button.register}>
-                    <Text style={styles.registerText}>Não possui uma conta? Cadastre-se</Text>
-                </TouchableOpacity>
-
-            </Animatable.View>
-        </View>
-    );
-}
-
-const styles = StyleSheet.create({
-    container:{
-        flex: 1,
-        backgroundColor: '#D69A3A',
-    },
-    containerHeader:{
-        marginTop: '14%',
-        marginBottom: '8%',
-        paddingStart: '5%',
-    },
-    message:{
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#FFF'
-    },
-    containerForm:{
-        backgroundColor: '#FFF',
-        flex: 1,
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
-        paddingStart: '5%',
-        paddingEnd: '5%',
-    },
-    title:{
-        fontSize: 20,
-        marginTop: 28,
-    },
-    input:{
-        borderBottomWidth: 1,
-        height: 40,
-        marginBottom: 12,
-        fontSize: 16,
-    },
-    button:{
-        backgroundColor: '#D69A3A',
-        width: '100%',
-        borderRadius: 4,
-        paddingVertical: 8,
-        marginTop: 14,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    buttonText:{
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    buttonRegister:{
-        marginTop: 14,
-        alignSelf: 'center'
-    },
-    registerText:{
-        color: '#A1A1A1'
+  async function handleLogin() {
+    try {
+      const { data } = await api.post("/auth/login", { email, password });
+      await SecureStore.setItemAsync("token", data.token);
+      await SecureStore.setItemAsync("role", data.role ?? "user");
+      goToApp();
+    } catch (error) {
+      const msg = error?.response?.data?.error || "Erro ao fazer login. Verifique seus dados.";
+      Alert.alert("Falha no Login", msg);
     }
-})
+  }
+
+  async function handleBiometricAuth() {
+    try {
+      const hasBiometrics = await LocalAuthentication.isEnrolledAsync();
+      if (!hasBiometrics) return;
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Autentique-se com sua biometria",
+        cancelLabel: "Usar senha",
+      });
+      if (result.success) goToApp();
+    } catch {}
+  }
+
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
+          <Text style={styles.message}>Bem-vindo(a)</Text>
+        </Animatable.View>
+
+        <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+          <Text style={styles.title}>Email</Text>
+          <TextInput
+            placeholder="Digite seu email..."
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <Text style={styles.title}>Senha</Text>
+          <TextInput
+            placeholder="Sua senha"
+            placeholderTextColor="#aaa"
+            style={styles.input}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Acessar</Text>
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+            style={{ alignSelf: 'center', marginTop: 10 }}
+            onPress={() => navigation.navigate('ForgotPassword')}
+          >
+            <Text style={{ color: '#D69A3A', fontWeight: '600' }}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.buttonRegister} onPress={() => navigation.navigate("Register")}>
+            <Text style={styles.registerText}>Não possui uma conta? Cadastre-se</Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}

@@ -1,174 +1,222 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  Image,
-  ScrollView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
+  View, Text, TextInput, Image, ScrollView, TouchableOpacity,
+  KeyboardAvoidingView, Platform, Alert
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import MapView, { Marker } from 'react-native-maps';
-import { DateTimePickerAndroid } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as SecureStore from 'expo-secure-store';
+import api from '../../services/api';
+import HeaderLayout from '../../components/HeaderLayout';
+import styles from './styles';
+import { getMe } from '../../services/userService';
 
-export default function CadastroAnimalScreen() {
+export default function CadastroAnimal({ navigation }) {
   const [nomeAnimal, setNomeAnimal] = useState('');
-  const [nomeTutor, setNomeTutor] = useState('');
-  const [cpfTutor, setCpfTutor] = useState('');
-  const [data, setData] = useState(new Date());
+  const [idadeAnimal, setIdadeAnimal] = useState('');
+  const [tipoAnimal, setTipoAnimal] = useState('');
+  const [racaAnimal, setRacaAnimal] = useState('');
+  const [pesoAnimal, setPesoAnimal] = useState('');
+  const [pesoDesconhecido, setPesoDesconhecido] = useState(false);
+  const [corAnimal, setCorAnimal] = useState('');
   const [imagem, setImagem] = useState(null);
-  const [localizacao, setLocalizacao] = useState({
-    latitude: -23.55052,
-    longitude: -46.633308,
-  });
+
+  const [tutorNome, setTutorNome] = useState('');
+  const [tutorCpf, setTutorCpf] = useState('');
+  const [tutorTelefone, setTutorTelefone] = useState('');
 
   useEffect(() => {
     (async () => {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Permissão para usar a câmera é necessária!');
+      try {
+        const me = await getMe();
+        setTutorNome(me?.name ?? '');
+        setTutorCpf(me?.cpf ?? '');
+        setTutorTelefone(me?.phone ?? '');
+      } catch {
       }
     })();
   }, []);
 
   const selecionarImagem = async () => {
-    let resultado = await ImagePicker.launchCameraAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
+      base64: true,
+      quality: 0.5,
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
     });
-
-    if (!resultado.canceled) {
-      setImagem(resultado.assets[0].uri);
+    if (!result.canceled && result.assets?.length) {
+      setImagem(result.assets[0]);
     }
   };
 
-  const abrirDatePicker = () => {
-    DateTimePickerAndroid.open({
-      value: data,
-      onChange: (event, selectedDate) => {
-        if (selectedDate) setData(selectedDate);
-      },
-      mode: 'date',
-      is24Hour: true,
-    });
-  };
+  const aoSalvar = async () => {
+    if (!nomeAnimal || !tipoAnimal || !imagem) {
+      return Alert.alert('Atenção', 'Preencha pelo menos: Nome, Tipo e Foto.');
+    }
 
-  const aoMarcarMapa = (evento) => {
-    setLocalizacao(evento.nativeEvent.coordinate);
-  };
+    const token = await SecureStore.getItemAsync('token');
+    if (!token) return Alert.alert('Sessão expirada', 'Faça login novamente.');
 
-  const aoSalvar = () => {
+    const tipoNormalizado =
+      tipoAnimal?.toLowerCase() === 'gato' ? 'Gato' :
+      tipoAnimal?.toLowerCase() === 'cachorro' ? 'Cachorro' : '';
+
     const dados = {
-      nomeAnimal,
-      nomeTutor,
-      cpfTutor,
-      data: data.toLocaleDateString(),
-      imagem,
-      localizacao,
+      nome: nomeAnimal.trim(),
+      idade: idadeAnimal?.toString().trim(),
+      tipo: tipoNormalizado,
+      raca: racaAnimal.trim(),
+      ...(pesoDesconhecido ? {} : { peso: pesoAnimal?.toString().trim() }),
+      cor: corAnimal.trim(),
+      dataCadastro: new Date().toLocaleDateString('pt-BR'),
+      imagem: imagem.base64,
+
+      ...(tutorNome ? { nomeTutor: tutorNome } : {}),
+      ...(tutorCpf ? { cpfTutor: tutorCpf } : {}),
+      ...(tutorTelefone ? { telefoneTutor: tutorTelefone } : {}),
     };
-    console.log('Dados cadastrados:', dados);
-    alert('Cadastro realizado com sucesso!');
+
+    try {
+      await api.post('/pets', dados, { headers: { Authorization: `Bearer ${token}` } });
+      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            setNomeAnimal('');
+            setIdadeAnimal('');
+            setTipoAnimal('');
+            setRacaAnimal('');
+            setPesoAnimal('');
+            setPesoDesconhecido(false);
+            setCorAnimal('');
+            setImagem(null);
+            navigation.goBack();
+          },
+        },
+      ]);
+    } catch (err) {
+      console.error('Erro ao salvar no banco:', err.response?.data || err.message);
+      const msg = err.response?.data?.error || 'Erro ao salvar no banco';
+      Alert.alert('Erro', msg);
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.label}>Nome do Animal:</Text>
-      <TextInput style={styles.input} value={nomeAnimal} onChangeText={setNomeAnimal} />
-
-      <Text style={styles.label}>Nome do Tutor:</Text>
-      <TextInput style={styles.input} value={nomeTutor} onChangeText={setNomeTutor} />
-
-      <Text style={styles.label}>CPF do Tutor:</Text>
-      <TextInput
-        style={styles.input}
-        value={cpfTutor}
-        onChangeText={setCpfTutor}
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.label}>Data:</Text>
-      <TouchableOpacity style={styles.botao} onPress={abrirDatePicker}>
-        <Text style={styles.textoBotao}>Selecionar Data</Text>
-      </TouchableOpacity>
-        <Text style={styles.dataTexto}>{data.toLocaleDateString()}</Text>
-
-        <Text style={styles.label}>Foto do Animal:</Text>
-      <TouchableOpacity style={styles.botao} onPress={selecionarImagem}>
-        <Text style={styles.textoBotao}>Tirar Foto</Text>
-      </TouchableOpacity>
-      {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
-
-
-      <Text style={styles.label}>Marcar Localização no Mapa:</Text>
-      <MapView
-        style={styles.mapa}
-        initialRegion={{
-          ...localizacao,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-        onPress={aoMarcarMapa}
+    <HeaderLayout title="Cadastrar Animal" scroll>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
-        <Marker coordinate={localizacao} />
-      </MapView>
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingBottom: 24 }]}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.label}>Nome do Animal</Text>
+          <TextInput
+            style={styles.input}
+            value={nomeAnimal}
+            onChangeText={setNomeAnimal}
+            placeholder="Ex: Thor"
+            placeholderTextColor="#9EA0A4"
+          />
 
-      <TouchableOpacity style={styles.botao} onPress={aoSalvar}>
-        <Text style={styles.textoBotao}>Salvar Cadastro</Text>
-      </TouchableOpacity>
+          <Text style={styles.label}>Tipo do Animal</Text>
+          <View style={styles.radioGroup}>
+            <TouchableOpacity
+              style={[styles.radioButton, tipoAnimal === 'cachorro' && styles.radioButtonSelected]}
+              onPress={() => setTipoAnimal('cachorro')}
+            >
+              <Icon name="dog" size={24} color={tipoAnimal === 'cachorro' ? '#FFF' : '#D69A3A'} />
+              <Text style={[styles.radioText, tipoAnimal === 'cachorro' && styles.radioTextSelected]}>
+                Cachorro
+              </Text>
+            </TouchableOpacity>
 
-    </ScrollView>
+            <TouchableOpacity
+              style={[styles.radioButton, tipoAnimal === 'gato' && styles.radioButtonSelected]}
+              onPress={() => setTipoAnimal('gato')}
+            >
+              <Icon name="cat" size={24} color={tipoAnimal === 'gato' ? '#FFF' : '#D69A3A'} />
+              <Text style={[styles.radioText, tipoAnimal === 'gato' && styles.radioTextSelected]}>
+                Gato
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.label}>Raça</Text>
+          <TextInput
+            style={styles.input}
+            value={racaAnimal}
+            onChangeText={setRacaAnimal}
+            placeholder="Ex: Vira-lata"
+            placeholderTextColor="#9EA0A4"
+          />
+
+          <Text style={styles.label}>Peso (kg)</Text>
+          <View style={{ gap: 8 }}>
+            <TextInput
+              style={[styles.input, pesoDesconhecido && styles.disabledInput]}
+              keyboardType="numeric"
+              value={pesoAnimal}
+              onChangeText={setPesoAnimal}
+              placeholder="Ex: 7.5"
+              placeholderTextColor="#9EA0A4"
+              editable={!pesoDesconhecido}
+            />
+            <TouchableOpacity
+              style={[styles.unknownChip, pesoDesconhecido && styles.unknownChipOn]}
+              onPress={() => setPesoDesconhecido(!pesoDesconhecido)}
+              activeOpacity={0.8}
+            >
+              <Icon
+                name={pesoDesconhecido ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                size={20}
+                color={pesoDesconhecido ? '#fff' : '#D69A3A'}
+              />
+              <Text style={[styles.unknownText, pesoDesconhecido && styles.unknownTextOn]}>
+                Não sei informar
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.label}>Cor</Text>
+          <TextInput
+            style={styles.input}
+            value={corAnimal}
+            onChangeText={setCorAnimal}
+            placeholder="Ex: Caramelo"
+            placeholderTextColor="#9EA0A4"
+          />
+
+          <Text style={styles.label}>Idade (anos)</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={idadeAnimal}
+            onChangeText={setIdadeAnimal}
+            placeholder="Ex: 3"
+            placeholderTextColor="#9EA0A4"
+          />
+
+          <Text style={styles.label}>Foto do Animal</Text>
+          <View style={styles.imageContainer}>
+            {imagem ? (
+              <Image source={{ uri: imagem.uri }} style={styles.imagem} />
+            ) : (
+              <View style={styles.emptyImage}>
+                <Text style={styles.emptyImageText}>Nenhuma imagem</Text>
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity style={styles.selectButton} onPress={selecionarImagem}>
+            <Text style={styles.textoBotao}>Selecionar Imagem</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.botao, { marginTop: 20 }]} onPress={aoSalvar}>
+            <Text style={styles.textoBotao}>Salvar Cadastro</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </HeaderLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    paddingBottom: 40,
-    backgroundColor: '#fff',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 15,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 5,
-  },
-  dataTexto: {
-    marginTop: 5,
-    marginBottom: 10,
-    fontSize: 16,
-  },
-  imagem: {
-    width: '100%',
-    height: 200,
-    marginTop: 10,
-    borderRadius: 6,
-  },
-  mapa: {
-    width: '100%',
-    height: 300,
-    marginTop: 10,
-  },
-  botao: {
-    backgroundColor: '#D69A3A',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  
-  textoBotao: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },  
-});

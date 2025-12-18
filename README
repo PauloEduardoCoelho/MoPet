@@ -1,0 +1,117 @@
+
+# MoPet 🐾
+
+MoPet é um aplicativo mobile completo que permite o cadastro, monitoramento e análise de campanhas públicas de vacinação e castração de cães e gatos. Ele oferece um painel intuitivo para agentes de saúde pública e funcionalidades práticas para tutores de animais.
+
+---
+
+## 📑 Índice
+
+- [🚀 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [🧩 Funcionalidades](#-funcionalidades)
+- [📁 Estrutura do Projeto](#-estrutura-do-projeto)
+- [⚙️ Como Executar o Projeto](#-como-executar-o-projeto)
+- [👨‍💻 Sobre os Desenvolvedores](#-sobre-os-desenvolvedores)
+- [🎓 Orientador](#-orientador)
+- [📌 Considerações Finais](#-considerações-finais)
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+### 📱 Frontend (Mobile)
+- React Native com Expo
+- React Navigation
+- React Native Animatable
+- Axios
+- MapView (react-native-maps)
+- Expo Secure Store
+
+### 🌐 Backend (API REST)
+- Node.js com Express
+- MongoDB via Mongoose
+- JSON Web Tokens (JWT)
+- Bcrypt.js
+- Dotenv
+
+---
+
+## 🧩 Funcionalidades
+
+- **Autenticação de Usuários:** Login seguro com token JWT.
+- **Cadastro de Usuários:** Com papéis (user, campAdmin, superAdmin).
+- **Cadastro de Animais:** Com foto, localização, e dados do tutor.
+- **Listagem com Filtro:** Por CPF do tutor.
+- **Visualização Detalhada:** Dados completos do animal e mapa com localização.
+- **Armazenamento Seguro:** Tokens e sessões com SecureStore.
+- **Geolocalização:** Busca de coordenadas via endereço digitado.
+- **Proteção de Rotas:** Middleware de autenticação.
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+MoPet/
+├── backend/                # API REST com Node.js e MongoDB
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   └── server.js
+├── src/                    # Aplicativo React Native
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   │   ├── SignIn/
+│   │   ├── Register/
+│   │   ├── CadastroAnimal/
+│   │   ├── AnimalList/
+│   │   └── PetDetail/
+│   ├── services/
+│   ├── routes/
+│   └── App.js
+└── README.md
+```
+
+---
+
+## ⚙️ Como Executar o Projeto
+
+### 🔧 Backend (API)
+```bash
+cd backend
+npm install
+node server.js
+```
+
+### 📱 Frontend (Mobile)
+```bash
+cd MoPet
+npm install
+npx expo start
+```
+
+> Garanta que o IP base em `services/api.js` esteja igual ao IP da sua rede local.
+
+---
+
+## 👨‍💻 Sobre os Desenvolvedores
+
+- **João da Silva Alves Cunha** – Matrícula: 202211713  
+- **Paulo Eduardo Fernandes de Siqueira Coelho** – Matrícula: 202212248
+- **Pedro Henrique Kuhnen Pereira** - Matrícula: 202220104
+
+---
+
+## 🎓 Orientador
+
+- **Tássio Ferenzini Martins Sirqueira**
+
+---
+
+## 📌 Considerações Finais
+
+MoPet contribui com a saúde pública e o bem-estar dos animais através da tecnologia. Ele integra recursos modernos de desenvolvimento mobile e backend, sendo um exemplo prático de um sistema completo, seguro e funcional.
+
+> Projeto desenvolvido como Trabalho de Conclusão de Curso (TCC) para o curso de Engenharia de Software da **Univassouras**.
